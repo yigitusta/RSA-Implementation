@@ -91,7 +91,24 @@ Then write the following to the terminal in order:
     * pq.txt
 
        This file contains p and q values which will also be used by decrypt_text program.
-       
+    
+    Example console output of this part:
+
+    ```c
+    p and q must be prime numbers, e must be coprime to (p - 1)*(q - 1)
+
+    e: 3
+    p: 6599
+    q: 6143
+    n: 40537657
+    phi: 40524916
+
+    d: 27016611
+
+    Public Key:  (n,e) = (40537657, 3)
+    Private Key: (n,d) = (40537657, 27016611)
+    ```
+    
 2. **./encrypt_text (message to be encrypted)**
 
     This program will print all characters' ascii values' cipher values of the argument passed, to a file called ciphertext.txt according to the rule below.
