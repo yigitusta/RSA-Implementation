@@ -8,9 +8,9 @@ Consists of three parts.
 
 In order to encrypt and decrypt some text you must first compile all of these files.
 
-Copy all three files to the directory you want to work in.
+Copy/Move all three files to the directory you want to work in.
 
-Open a terminal, and press enter after typing each line (assuming gcc is installed):
+Open a terminal, change your current working directory to the directory with the files and press enter after typing each line (assuming gcc is installed):
 ```bash
 gcc rsa.c -o rsa
 gcc encrypt_text.c -o encrypt_text
@@ -27,15 +27,58 @@ Then write the following to the terminal in order:
 
 1. **./rsa**
 
-   Running the ./rsa command will generate p and q values which are prime numbers, and sets e to 3 (it was normally generating e automatically but it caused program to encrypt big numbers incorrectly because due to 64 bit limitation during calculations.)
+    Running the ./rsa command will generate p and q values which are prime numbers, and sets e to 3 (it was normally generating e automatically but it caused program to encrypt big numbers incorrectly  during calculations due to 64 bit limitation.)
 
-   n = p * q
+    n = p * q
    
-   e has to be coprime to φ(n) = (p - 1) * (q - 1) and 1 < e < φ(n)
+    e has to be coprime to φ(n) = (p - 1) * (q - 1) and 1 < e < φ(n)
 
-   Then d is calculated so that (d * e) % φ(n) = 1
+    ```c
+    void setprimes(uint16_t e, uint16_t *p, uint16_t *q, uint32_t *n, uint32_t *phi) //φ(n) = phi
+    {
+	    do
+	    {
+		    *p = getprime();
+		    do
+			    *q = getprime();
+		    while(*p == *q);
 
-   Then 3 files are created.
+		    *n = *p * *q;
+		    *phi = *n - *p - *q + 1;
+	    }while (gcd(e,*phi) != 1);
+    }
+    ```
+    Note: % is means modular operation
+
+    d is calculated so that (d * e) % φ(n) = 1
+    
+    Notice that d is modular inverse of e % φ(n)
+
+    [How to find modular inverses?](https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/modular-inverses)
+
+    This function calculates modular inverse of e % φ(n) which is d.
+    ```c
+    uint32_t findD(uint16_t e, uint32_t phi)
+    {
+	    uint32_t eprev, dprev, d = 1, etemp, dtemp;
+
+	    eprev = phi, dprev = phi;
+	    while (e != 1)
+	    {
+		    etemp = e;
+		    dtemp = d;
+		    e = eprev - eprev / etemp * e;
+		    d = dprev - eprev / etemp * d;
+		    eprev = etemp;
+		    dprev = dtemp;
+		    while (d < 0)
+			    d += phi;
+	    }
+	    return d;
+    }
+    ```
+
+    Then 3 files are created.
 
     * public.txt
 
@@ -57,6 +100,20 @@ Then write the following to the terminal in order:
     
     c = m<sup>e</sup> % n
 
+    ```c
+    //base = m, power = e, mod = n, c = result
+    unsigned long long int modpow(int base, int power, int mod)
+    {
+        int i;
+        unsigned long long int result = 1;
+        for (i = 0; i < power; i++)
+        {
+                result = (result * base) % mod;
+        }
+        return result;
+    }
+    ```
+
 3. **./decrypt_text**
 
     This program will print original message by applying decryption algorithm to each value in ciphertext.txt file to the console. The rule is given below.
@@ -65,4 +122,20 @@ Then write the following to the terminal in order:
 
     m = c<sup>d</sup> % n
 
-    NOTE: I have no idea how I used p and q values from the file pq.txt, i wrote this a long time ago, with not many comments, couldn't figure out what happened in that decrypt_text.c file, if you can figure out please make a pull request by changing readme.md or email me so i can update this file. Thanksss
+    **NOTE: I have no idea how I used p and q values from the file pq.txt, i wrote this a long time ago, not with many comments. I couldn't figure out what I had written at the time i decided to upload this to github, if you can figure out please make a pull request by changing readme.md or email me so i can update this file. Thankss**
+    
+    ###### Code Section I am talking about is here:
+
+    ```c
+        dP = d % (p - 1);
+        dQ = d % (q - 1);
+        qInv = inverse(q,p); //modular inverse of q % p
+        m1 = modpow(c,dP,p);
+        m2 = modpow(c,dQ,q);
+        m1m2 = m1 - m2;
+        if (m1m2 < 0)
+            m1m2 += p;
+        h = (qInv * m1m2) % p;
+        m = m2 + h * q;
+	    printf("%c", m);
+    ```
