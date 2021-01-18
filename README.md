@@ -133,13 +133,13 @@ Then write the following to the terminal in order:
 
 3. **./decrypt_text**
 
-    This program will print original message by applying decryption algorithm to each value in ciphertext.txt file to the console. The rule is given below.
+    This program will print the original message by applying decryption algorithm to each value in ciphertext.txt file to the console. The rule is given below.
 
     c: cipher value, m: ascii value of the character to be printed, d and n are taken from the private.txt file.
 
     m = c<sup>d</sup> % n
 
-    **NOTE: I have no idea how I used p and q values from the file pq.txt, i wrote this a long time ago, not with many comments. I couldn't figure out what I had written at the time i decided to upload this to github, if you can figure out please make a pull request by changing readme.md or email me so i can update this file. Thankss**
+    **NOTE: I have no idea how I used p and q values from the file pq.txt, I wrote this a long time ago, not with many comments. I couldn't figure out what I had written at the time I decided to upload this project to GitHub, if you can figure out please make a pull request by changing readme.md or email me so I can update this file.**
     
     ###### Code Section I am talking about is here:
 
